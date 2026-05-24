@@ -11,6 +11,12 @@
     state: present
     update_cache: true
 
+- name: Remove packages that duplicate Noctalia features
+  community.general.pacman:
+    name: "{{ laptop_removed_pacman_packages }}"
+    state: absent
+  when: laptop_removed_pacman_packages | length > 0
+
 - name: Ensure laptop user exists
   ansible.builtin.user:
     name: "{{ laptop_user }}"

@@ -69,20 +69,22 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 {% for command in (niri_spawn_at_startup + niri_extra_spawn_at_startup) %}
 spawn-at-startup {{ kdl_args(command) }}
 {% endfor %}
-{% if fnott_enable | bool %}
-spawn-at-startup "fnott"
-{% endif %}
 
 binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     Mod+Return hotkey-overlay-title="Open Terminal" { spawn {{ niri_terminal | to_json }}; }
     Mod+T      hotkey-overlay-title="Open Terminal" { spawn {{ niri_terminal | to_json }}; }
-    Mod+D      hotkey-overlay-title="Run Launcher"  { spawn {{ niri_launcher | to_json }}; }
 
-    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-"; }
-    XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
+    // Noctalia shell controls.
+    Mod+D     hotkey-overlay-title="Noctalia Launcher"       { spawn {{ kdl_args(noctalia_ipc_command + ["launcher", "toggle"]) }}; }
+    Mod+Space hotkey-overlay-title="Noctalia Launcher"       { spawn {{ kdl_args(noctalia_ipc_command + ["launcher", "toggle"]) }}; }
+    Mod+S     hotkey-overlay-title="Noctalia Control Center" { spawn {{ kdl_args(noctalia_ipc_command + ["controlCenter", "toggle"]) }}; }
+    Mod+Comma hotkey-overlay-title="Noctalia Settings"       { spawn {{ kdl_args(noctalia_ipc_command + ["settings", "toggle"]) }}; }
+
+    XF86AudioRaiseVolume allow-when-locked=true { spawn {{ kdl_args(noctalia_ipc_command + ["volume", "increase"]) }}; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn {{ kdl_args(noctalia_ipc_command + ["volume", "decrease"]) }}; }
+    XF86AudioMute        allow-when-locked=true { spawn {{ kdl_args(noctalia_ipc_command + ["volume", "muteOutput"]) }}; }
     XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
 
     XF86AudioPlay  allow-when-locked=true { spawn "playerctl" "play-pause"; }
@@ -91,8 +93,8 @@ binds {
     XF86AudioPrev  allow-when-locked=true { spawn "playerctl" "previous"; }
     XF86AudioNext  allow-when-locked=true { spawn "playerctl" "next"; }
 
-    XF86MonBrightnessUp   allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+10%"; }
-    XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "10%-"; }
+    XF86MonBrightnessUp   allow-when-locked=true { spawn {{ kdl_args(noctalia_ipc_command + ["brightness", "increase"]) }}; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn {{ kdl_args(noctalia_ipc_command + ["brightness", "decrease"]) }}; }
 
     Mod+O repeat=false { toggle-overview; }
     Mod+Q repeat=false { close-window; }

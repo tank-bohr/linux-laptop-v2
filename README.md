@@ -1,6 +1,6 @@
 # Arch laptop Ansible
 
-Плейбук для чистого Arch Linux: ставит `paru`, `greetd` + ReGreet, `niri`, Noctalia Shell, Ghostty, Firefox и Fnott.
+Плейбук для чистого Arch Linux: ставит `paru`, `greetd` + ReGreet, `niri`, Noctalia Shell, Ghostty и Firefox.
 
 ## Быстрый старт
 
@@ -33,12 +33,13 @@ sudo reboot
 
 ## Что делает
 
-- Ставит официальные пакеты Arch: `greetd`, `greetd-regreet`, `cage`, `niri`, `xwayland-satellite`, `ghostty`, `firefox`, `fnott`, PipeWire, порталы, шрифты и утилиты для Wayland/Noctalia.
+- Ставит официальные пакеты Arch: `greetd`, `greetd-regreet`, `cage`, `niri`, `xwayland-satellite`, `ghostty`, `firefox`, PipeWire, порталы, шрифты и утилиты для Wayland/Noctalia.
 - Собирает и ставит `paru` из AUR, пишет `/etc/paru.conf`.
 - Ставит `noctalia-shell` из AUR через `paru`.
 - Настраивает `/etc/greetd/config.toml`: ReGreet запускается в Cage, а после логина можно выбрать сессию `niri`.
 - Пишет `~/.config/niri/config.kdl`: автозапуск `qs -c noctalia-shell`, `xwayland-satellite`, clipboard watcher и polkit agent. Терминал по умолчанию — Ghostty.
-- Пишет базовые конфиги `~/.config/ghostty/config` и `~/.config/fnott/fnott.ini`.
+- Бинды niri используют Noctalia IPC: `Super+D`/`Super+Space` — Noctalia launcher, `Super+S` — control center, `Super+,` — настройки.
+- Пишет базовый конфиг `~/.config/ghostty/config`.
 
 По умолчанию `greetd` только включается в автозагрузку. Если нужно стартовать его сразу, добавьте в inventory:
 
@@ -48,11 +49,7 @@ laptop_start_greetd_now: true
 
 ## Уведомления
 
-У `niri` своего notification daemon нет. У Noctalia он есть, поэтому `fnott` установлен как fallback, но не автозапускается, чтобы не конфликтовать за D-Bus-имя `org.freedesktop.Notifications`. Если хотите использовать Fnott вместо Noctalia-уведомлений, включите:
-
-```yaml
-fnott_enable: true
-```
+У `niri` своего notification daemon нет, а у Noctalia есть. Поэтому отдельный daemon (`fnott`, `mako` и т.п.) не ставится и не запускается: уведомления остаются в Noctalia.
 
 ## Важно про sudo
 

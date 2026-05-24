@@ -105,8 +105,6 @@ laptop_pacman_desktop_packages:
   # Desktop utilities
   - ghostty
   - foot
-  - fuzzel
-  - fnott
   - xdg-user-dirs
   - xdg-utils
   - gvfs
@@ -127,6 +125,13 @@ laptop_pacman_desktop_packages:
   - papirus-icon-theme
 
 laptop_extra_pacman_packages: []
+
+# Packages that were used in earlier iterations or would duplicate Noctalia features.
+# Remove fuzzel/dmenu-like launcher and standalone notification daemons by default.
+laptop_removed_pacman_packages:
+  - fnott
+  - mako
+  - fuzzel
 
 laptop_enabled_system_services:
   - NetworkManager.service

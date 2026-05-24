@@ -10,7 +10,6 @@
     - "{{ niri_config_dir }}"
     - "{{ niri_environment_dir }}"
     - "{{ ghostty_config_dir }}"
-    - "{{ fnott_config_dir }}"
     - "{{ laptop_user_home }}/Pictures/Screenshots"
 
 - name: Install niri config with Noctalia autostart
@@ -34,12 +33,10 @@
     owner: "{{ laptop_user }}"
     mode: "0644"
 
-- name: Configure Fnott fallback notifications
-  ansible.builtin.template:
-    src: fnott.ini.j2
-    dest: "{{ fnott_config_path }}"
-    owner: "{{ laptop_user }}"
-    mode: "0644"
+- name: Remove obsolete Fnott config from older playbook versions
+  ansible.builtin.file:
+    path: "{{ laptop_user_home }}/.config/fnott/fnott.ini"
+    state: absent
 
 - name: Ensure Noctalia config/cache directories exist
   ansible.builtin.file:

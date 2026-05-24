@@ -1,0 +1,7 @@
+---
+# Noctalia is distributed for Arch through AUR. It pulls noctalia-qs and runtime deps.
+laptop_aur_packages:
+  - noctalia-shell
+
+# Extra AUR packages can be added from inventory/host_vars.
+laptop_extra_aur_packages: []

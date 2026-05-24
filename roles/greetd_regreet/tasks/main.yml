@@ -1,0 +1,71 @@
+---
+- name: Ensure greetd config directory exists
+  ansible.builtin.file:
+    path: /etc/greetd
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Configure greetd to run ReGreet in Cage
+  ansible.builtin.template:
+    src: config.toml.j2
+    dest: "{{ greetd_config_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure ReGreet
+  ansible.builtin.template:
+    src: regreet.toml.j2
+    dest: "{{ greetd_regreet_config_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure ReGreet CSS
+  ansible.builtin.template:
+    src: regreet.css.j2
+    dest: "{{ greetd_regreet_css_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+  when: regreet_manage_css | bool
+
+- name: Ensure greeter system group exists
+  ansible.builtin.group:
+    name: "{{ greetd_greeter_user }}"
+    system: true
+    state: present
+
+- name: Ensure greeter system user exists
+  ansible.builtin.user:
+    name: "{{ greetd_greeter_user }}"
+    group: "{{ greetd_greeter_user }}"
+    system: true
+    shell: /usr/bin/nologin
+    home: /var/lib/greetd
+    create_home: false
+    state: present
+
+- name: Ensure ReGreet state and log directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ greetd_greeter_user }}"
+    group: "{{ greetd_greeter_user }}"
+    mode: "0755"
+  loop:
+    - /var/lib/regreet
+    - /var/log/regreet
+
+- name: Enable greetd service
+  ansible.builtin.systemd:
+    name: greetd.service
+    enabled: true
+
+- name: Start greetd service when requested
+  ansible.builtin.systemd:
+    name: greetd.service
+    state: started
+  when: laptop_start_greetd_now | bool

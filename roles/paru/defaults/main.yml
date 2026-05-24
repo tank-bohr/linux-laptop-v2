@@ -1,0 +1,15 @@
+---
+paru_build_root: /var/tmp/aur-builds
+paru_build_dir: "{{ paru_build_root }}/paru"
+paru_rebuild: false
+paru_git_repo: https://aur.archlinux.org/paru.git
+paru_git_version: master
+paru_config_path: /etc/paru.conf
+
+paru_config_content: |
+  # Managed by Ansible.
+  # See paru(8) and paru.conf(5).
+  [options]
+  BottomUp
+  CombinedUpgrade
+  CleanAfter

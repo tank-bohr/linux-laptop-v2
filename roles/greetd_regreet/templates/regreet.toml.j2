@@ -1,0 +1,30 @@
+# Managed by Ansible.
+{% if regreet_background_path | length > 0 %}
+[background]
+path = {{ regreet_background_path | to_json }}
+fit = {{ regreet_background_fit | to_json }}
+{% endif %}
+[env]
+XDG_SESSION_TYPE = "wayland"
+XDG_CURRENT_DESKTOP = "niri"
+XDG_SESSION_DESKTOP = "niri"
+
+[GTK]
+application_prefer_dark_theme = {{ (regreet_prefer_dark_theme | bool) | ternary('true', 'false') }}
+cursor_theme_name = {{ regreet_cursor_theme_name | to_json }}
+cursor_blink = true
+font_name = {{ regreet_font_name | to_json }}
+icon_theme_name = {{ regreet_icon_theme_name | to_json }}
+theme_name = {{ regreet_theme_name | to_json }}
+
+[commands]
+reboot = ["systemctl", "reboot"]
+poweroff = ["systemctl", "poweroff"]
+x11_prefix = ["startx", "/usr/bin/env"]
+
+[appearance]
+greeting_msg = {{ regreet_greeting_msg | to_json }}
+
+[widget.clock]
+format = {{ regreet_clock_format | to_json }}
+resolution = {{ regreet_clock_resolution | to_json }}

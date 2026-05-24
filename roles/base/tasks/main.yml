@@ -1,0 +1,102 @@
+---
+- name: Upgrade the system before installing desktop packages
+  community.general.pacman:
+    update_cache: true
+    upgrade: true
+  when: laptop_full_system_upgrade | bool
+
+- name: Install official repository packages
+  community.general.pacman:
+    name: "{{ (laptop_pacman_base_packages + laptop_pacman_desktop_packages + laptop_extra_pacman_packages) | unique | list }}"
+    state: present
+    update_cache: true
+
+- name: Ensure laptop user exists
+  ansible.builtin.user:
+    name: "{{ laptop_user }}"
+    shell: "{{ laptop_user_shell }}"
+    create_home: true
+    password: "{{ (laptop_user_password_hash | length > 0) | ternary(laptop_user_password_hash, omit) }}"
+    update_password: on_create
+    state: present
+  when: laptop_create_user | bool
+
+- name: Check which requested Unix groups exist
+  ansible.builtin.command: "getent group {{ item }}"
+  loop: "{{ laptop_user_groups }}"
+  register: laptop_group_lookup
+  changed_when: false
+  failed_when: false
+
+- name: Remember existing Unix groups
+  ansible.builtin.set_fact:
+    laptop_existing_user_groups: >-
+      {{ laptop_group_lookup.results
+         | selectattr('rc', 'equalto', 0)
+         | map(attribute='item')
+         | list }}
+
+- name: Add laptop user to existing desktop groups
+  ansible.builtin.user:
+    name: "{{ laptop_user }}"
+    groups: "{{ laptop_existing_user_groups | join(',') }}"
+    append: true
+  when: laptop_existing_user_groups | length > 0
+
+- name: Allow wheel group to use sudo with password
+  ansible.builtin.copy:
+    dest: "{{ laptop_wheel_sudoers_path }}"
+    owner: root
+    group: root
+    mode: "0440"
+    content: "%wheel ALL=(ALL:ALL) ALL\n"
+    validate: /usr/bin/visudo -cf %s
+  when: laptop_enable_wheel_sudo | bool
+
+- name: Remove managed wheel sudoers rule when disabled
+  ansible.builtin.file:
+    path: "{{ laptop_wheel_sudoers_path }}"
+    state: absent
+  when: not (laptop_enable_wheel_sudo | bool)
+
+- name: Allow laptop user to run pacman without a password for AUR builds
+  ansible.builtin.copy:
+    dest: "{{ laptop_passwordless_pacman_sudoers_path }}"
+    owner: root
+    group: root
+    mode: "0440"
+    content: "{{ laptop_user }} ALL=(root) NOPASSWD: /usr/bin/pacman\n"
+    validate: /usr/bin/visudo -cf %s
+  when: laptop_enable_passwordless_pacman_for_aur | bool
+
+- name: Remove AUR pacman sudoers rule when disabled
+  ansible.builtin.file:
+    path: "{{ laptop_passwordless_pacman_sudoers_path }}"
+    state: absent
+  when: not (laptop_enable_passwordless_pacman_for_aur | bool)
+
+- name: Enable and start base system services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop: "{{ laptop_enabled_system_services }}"
+
+- name: Ensure common user directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ laptop_user }}"
+    mode: "0755"
+  loop:
+    - "{{ laptop_user_home }}/Pictures"
+    - "{{ laptop_user_home }}/Pictures/Screenshots"
+    - "{{ laptop_user_home }}/Downloads"
+
+- name: Initialize XDG user dirs
+  ansible.builtin.command: xdg-user-dirs-update
+  become_user: "{{ laptop_user }}"
+  environment:
+    HOME: "{{ laptop_user_home }}"
+  args:
+    creates: "{{ laptop_user_home }}/.config/user-dirs.dirs"

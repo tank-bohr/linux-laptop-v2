@@ -1,0 +1,50 @@
+# Managed by Ansible.
+# Fnott is installed as an optional fallback notification daemon.
+# It is not autostarted while Noctalia notifications are enabled.
+
+anchor=top-right
+edge-margin-vertical=12
+edge-margin-horizontal=12
+notification-margin=8
+max-icon-size=48
+selection-helper=fuzzel --dmenu
+
+layer=overlay
+background=0c0d11ee
+border-color=a8aeffff
+border-radius=12
+border-size=1
+padding-vertical=14
+padding-horizontal=16
+
+title-font=Noto Sans:size=10
+title-color=a8aeffff
+title-format=<i>%a%A</i>
+
+summary-font=Noto Sans:size=11:weight=bold
+summary-color=ffffffff
+summary-format=<b>%s</b>\n
+body-font=Noto Sans:size=10
+body-color=ffffffff
+body-format=%b
+
+progress-bar-height=4
+progress-color=a8aeffff
+progress-style=bar
+
+default-timeout=6
+idle-timeout=30
+max-timeout=0
+
+[low]
+background=0c0d11dd
+border-color=505050ff
+summary-color=ddddddff
+body-color=ccccccff
+
+[critical]
+background=3a1420f2
+border-color=ff6b8aff
+summary-color=ffffffff
+body-color=ffffffff
+default-timeout=0

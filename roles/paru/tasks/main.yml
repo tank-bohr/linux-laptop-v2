@@ -1,0 +1,67 @@
+---
+- name: Check if paru is installed
+  ansible.builtin.command: pacman -Q paru
+  register: paru_package_query
+  changed_when: false
+  failed_when: false
+
+- name: Ensure AUR build root exists
+  ansible.builtin.file:
+    path: "{{ paru_build_root }}"
+    state: directory
+    owner: "{{ laptop_user }}"
+    mode: "0755"
+  when: paru_package_query.rc != 0 or paru_rebuild | bool
+
+- name: Ensure paru build directory is writable by laptop user
+  ansible.builtin.file:
+    path: "{{ paru_build_dir }}"
+    state: directory
+    owner: "{{ laptop_user }}"
+    mode: "0755"
+    recurse: true
+  when: paru_package_query.rc != 0 or paru_rebuild | bool
+
+- name: Clone paru AUR package repository
+  ansible.builtin.git:
+    repo: "{{ paru_git_repo }}"
+    dest: "{{ paru_build_dir }}"
+    version: "{{ paru_git_version }}"
+    update: true
+    force: true
+  become_user: "{{ laptop_user }}"
+  environment:
+    HOME: "{{ laptop_user_home }}"
+  when: paru_package_query.rc != 0 or paru_rebuild | bool
+
+- name: Build paru package
+  ansible.builtin.command: makepkg -f --syncdeps --noconfirm
+  args:
+    chdir: "{{ paru_build_dir }}"
+  become_user: "{{ laptop_user }}"
+  environment:
+    HOME: "{{ laptop_user_home }}"
+  when: paru_package_query.rc != 0 or paru_rebuild | bool
+
+- name: Install built paru package
+  ansible.builtin.shell: |
+    set -euo pipefail
+    pkg=$(find . -maxdepth 1 -type f -name 'paru-[0-9]*-*.pkg.tar.*' ! -name '*-debug-*' -printf '%T@ %p\n' | sort -n | tail -n1 | cut -d' ' -f2-)
+    test -n "$pkg"
+    pacman -U --noconfirm "$pkg"
+  args:
+    chdir: "{{ paru_build_dir }}"
+    executable: /bin/bash
+  when: paru_package_query.rc != 0 or paru_rebuild | bool
+
+- name: Configure paru globally
+  ansible.builtin.copy:
+    dest: "{{ paru_config_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+    content: "{{ paru_config_content }}"
+
+- name: Verify paru installation
+  ansible.builtin.command: paru --version
+  changed_when: false

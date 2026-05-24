@@ -1,0 +1,28 @@
+---
+- name: Build final AUR package list
+  ansible.builtin.set_fact:
+    laptop_all_aur_packages: "{{ (laptop_aur_packages + laptop_extra_aur_packages) | unique | list }}"
+
+- name: Check installed AUR packages
+  ansible.builtin.command: "pacman -Q {{ item }}"
+  loop: "{{ laptop_all_aur_packages }}"
+  register: aur_package_query
+  changed_when: false
+  failed_when: false
+  when: laptop_all_aur_packages | length > 0
+
+- name: Build missing AUR package list
+  ansible.builtin.set_fact:
+    laptop_missing_aur_packages: >-
+      {{ aur_package_query.results | default([])
+         | selectattr('rc', 'ne', 0)
+         | map(attribute='item')
+         | list }}
+
+- name: Install missing AUR packages with paru
+  ansible.builtin.command:
+    argv: "{{ ['paru', '-S', '--needed', '--noconfirm', '--skipreview'] + laptop_missing_aur_packages }}"
+  become_user: "{{ laptop_user }}"
+  environment:
+    HOME: "{{ laptop_user_home }}"
+  when: laptop_missing_aur_packages | length > 0

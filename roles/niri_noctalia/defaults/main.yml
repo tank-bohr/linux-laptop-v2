@@ -1,0 +1,39 @@
+---
+laptop_user_home: "/home/{{ laptop_user }}"
+
+niri_config_dir: "{{ laptop_user_home }}/.config/niri"
+niri_config_path: "{{ niri_config_dir }}/config.kdl"
+niri_environment_dir: "{{ laptop_user_home }}/.config/environment.d"
+niri_environment_path: "{{ niri_environment_dir }}/90-wayland.conf"
+
+niri_keyboard_layout: "us,ru"
+niri_keyboard_options: "grp:alt_shift_toggle"
+niri_terminal: ghostty
+niri_launcher: fuzzel
+
+# Noctalia has its own notification daemon/history. Fnott is installed but not
+# autostarted by default to avoid fighting for org.freedesktop.Notifications.
+fnott_enable: false
+fnott_config_dir: "{{ laptop_user_home }}/.config/fnott"
+fnott_config_path: "{{ fnott_config_dir }}/fnott.ini"
+
+ghostty_config_dir: "{{ laptop_user_home }}/.config/ghostty"
+ghostty_config_path: "{{ ghostty_config_dir }}/config"
+ghostty_font_family: "JetBrainsMono Nerd Font"
+ghostty_font_size: 11
+
+niri_focus_ring_active_color: "#a8aeff"
+niri_focus_ring_inactive_color: "#505050"
+niri_overview_backdrop_color: "#26233a"
+
+# Commands are rendered as: spawn-at-startup "cmd" "arg" ...
+niri_spawn_at_startup:
+  - ["dbus-update-activation-environment", "--systemd", "--all"]
+  - ["systemctl", "--user", "import-environment", "WAYLAND_DISPLAY", "XDG_CURRENT_DESKTOP", "XDG_SESSION_TYPE", "NIRI_SOCKET"]
+  - ["/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"]
+  - ["xwayland-satellite"]
+  - ["wl-paste", "--type", "text", "--watch", "cliphist", "store"]
+  - ["wl-paste", "--type", "image", "--watch", "cliphist", "store"]
+  - ["qs", "-c", "noctalia-shell"]
+
+niri_extra_spawn_at_startup: []

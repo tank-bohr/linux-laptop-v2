@@ -1,0 +1,27 @@
+---
+- name: Configure clean Arch laptop with niri, greetd/ReGreet and Noctalia
+  hosts: all
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Check that target is Arch Linux
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.distribution == "Archlinux"
+        fail_msg: "Этот плейбук рассчитан на Arch Linux."
+
+    - name: Check laptop_user variable
+      ansible.builtin.assert:
+        that:
+          - laptop_user is defined
+          - laptop_user | length > 0
+          - laptop_user != 'root'
+        fail_msg: "Задайте laptop_user в inventory/hosts.yml."
+
+  roles:
+    - role: base
+    - role: paru
+    - role: aur
+    - role: greetd_regreet
+    - role: niri_noctalia

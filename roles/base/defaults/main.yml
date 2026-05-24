@@ -1,0 +1,134 @@
+---
+laptop_user_home: "/home/{{ laptop_user }}"
+laptop_user_shell: /bin/bash
+laptop_create_user: true
+# Optional SHA-512 password hash for a newly created user, e.g. `mkpasswd -m sha-512`.
+laptop_user_password_hash: ""
+
+# Only existing groups from this list will be applied.
+laptop_user_groups:
+  - wheel
+  - video
+  - audio
+  - input
+  - storage
+  - render
+
+# Let members of wheel use sudo with their password.
+laptop_enable_wheel_sudo: true
+laptop_wheel_sudoers_path: /etc/sudoers.d/10-wheel
+
+# Needed because paru/makepkg installs built packages through sudo pacman.
+# Set to false after the initial provisioning if you do not want this sudoers rule.
+laptop_enable_passwordless_pacman_for_aur: true
+laptop_passwordless_pacman_sudoers_path: /etc/sudoers.d/90-ansible-aur-pacman
+
+# Arch best practice: sync DB and upgrade before installing new packages.
+laptop_full_system_upgrade: true
+
+laptop_pacman_base_packages:
+  - base-devel
+  - git
+  - sudo
+  - curl
+  - jq
+  - unzip
+  - tar
+  - rsync
+  - openssh
+  - ca-certificates
+  - archlinux-keyring
+  - pacman-contrib
+  - rust
+  - python
+
+laptop_pacman_desktop_packages:
+  # Core system services
+  - networkmanager
+  - network-manager-applet
+  - bluez
+  - bluez-utils
+  - power-profiles-daemon
+  - upower
+  - polkit
+  - polkit-gnome
+  - accountsservice
+  - dbus
+
+  # Audio/video
+  - pipewire
+  - pipewire-pulse
+  - pipewire-alsa
+  - pipewire-jack
+  - wireplumber
+  - gstreamer
+  - gst-plugins-base
+  - gst-plugins-good
+  - gst-plugins-bad
+  - gst-plugin-pipewire
+  - ffmpeg
+  - qt6-multimedia
+
+  # greetd/ReGreet
+  - greetd
+  - greetd-regreet
+  - cage
+
+  # niri and Wayland desktop plumbing
+  - niri
+  - xwayland-satellite
+  - uwsm
+  - xdg-desktop-portal
+  - xdg-desktop-portal-gnome
+  - xdg-desktop-portal-gtk
+  - qt6-wayland
+  - qt6-svg
+  - qt6-declarative
+  - qt6-imageformats
+  - wlr-randr
+
+  # Noctalia runtime/recommended helpers
+  - brightnessctl
+  - playerctl
+  - pamixer
+  - pavucontrol
+  - wl-clipboard
+  - cliphist
+  - grim
+  - slurp
+  - swappy
+  - wlsunset
+  - matugen
+  - imagemagick
+  - evolution-data-server
+
+  # Desktop utilities
+  - ghostty
+  - foot
+  - fuzzel
+  - fnott
+  - xdg-user-dirs
+  - xdg-utils
+  - gvfs
+  - gvfs-mtp
+  - udisks2
+  - udiskie
+  - thunar
+  - firefox
+  - fastfetch
+  - btop
+
+  # Fonts/themes
+  - noto-fonts
+  - noto-fonts-cjk
+  - noto-fonts-emoji
+  - ttf-jetbrains-mono-nerd
+  - adwaita-icon-theme
+  - papirus-icon-theme
+
+laptop_extra_pacman_packages: []
+
+laptop_enabled_system_services:
+  - NetworkManager.service
+  - bluetooth.service
+  - power-profiles-daemon.service

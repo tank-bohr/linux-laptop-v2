@@ -1,0 +1,23 @@
+---
+greetd_config_path: /etc/greetd/config.toml
+greetd_regreet_config_path: /etc/greetd/regreet.toml
+greetd_regreet_css_path: /etc/greetd/regreet.css
+greetd_greeter_user: greeter
+
+# ReGreet runs inside Cage. ReGreet will then launch the selected Wayland session, e.g. niri.
+greetd_regreet_command: "env GTK_USE_PORTAL=0 GDK_DEBUG=no-portals dbus-run-session cage -s -mlast -d -- regreet"
+
+# Safer for first provisioning: enable greetd, but do not steal the current TTY immediately.
+laptop_start_greetd_now: false
+
+regreet_background_path: ""
+regreet_background_fit: Cover
+regreet_greeting_msg: "Добро пожаловать"
+regreet_prefer_dark_theme: true
+regreet_theme_name: Adwaita
+regreet_icon_theme_name: Papirus-Dark
+regreet_cursor_theme_name: Adwaita
+regreet_font_name: "Noto Sans 14"
+regreet_clock_format: "%a %H:%M"
+regreet_clock_resolution: 500ms
+regreet_manage_css: true

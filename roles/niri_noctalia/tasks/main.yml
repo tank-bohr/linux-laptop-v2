@@ -1,0 +1,52 @@
+---
+- name: Ensure niri/Wayland user config directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ laptop_user }}"
+    mode: "0755"
+  loop:
+    - "{{ laptop_user_home }}/.config"
+    - "{{ niri_config_dir }}"
+    - "{{ niri_environment_dir }}"
+    - "{{ ghostty_config_dir }}"
+    - "{{ fnott_config_dir }}"
+    - "{{ laptop_user_home }}/Pictures/Screenshots"
+
+- name: Install niri config with Noctalia autostart
+  ansible.builtin.template:
+    src: config.kdl.j2
+    dest: "{{ niri_config_path }}"
+    owner: "{{ laptop_user }}"
+    mode: "0644"
+
+- name: Install user Wayland environment variables
+  ansible.builtin.template:
+    src: environment.conf.j2
+    dest: "{{ niri_environment_path }}"
+    owner: "{{ laptop_user }}"
+    mode: "0644"
+
+- name: Configure Ghostty
+  ansible.builtin.template:
+    src: ghostty.config.j2
+    dest: "{{ ghostty_config_path }}"
+    owner: "{{ laptop_user }}"
+    mode: "0644"
+
+- name: Configure Fnott fallback notifications
+  ansible.builtin.template:
+    src: fnott.ini.j2
+    dest: "{{ fnott_config_path }}"
+    owner: "{{ laptop_user }}"
+    mode: "0644"
+
+- name: Ensure Noctalia config/cache directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ laptop_user }}"
+    mode: "0755"
+  loop:
+    - "{{ laptop_user_home }}/.config/noctalia"
+    - "{{ laptop_user_home }}/.cache/noctalia"
